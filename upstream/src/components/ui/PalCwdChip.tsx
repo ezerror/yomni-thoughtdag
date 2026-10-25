@@ -6,13 +6,13 @@ import { ShieldCheckIcon as ShieldCheck } from "@phosphor-icons/react/dist/csr/S
 import { ShieldSlashIcon as ShieldOff } from "@phosphor-icons/react/dist/csr/ShieldSlash";
 import { useUiStore } from '../../lib/ui-store';
 import { getModelsOnce } from '../../lib/use-models';
-import { moderaFrontend } from '../../lib/modera-bridge';
+import { palFrontend } from '../../lib/pal-bridge';
 import { setProjectAgentCwd, setProjectAgentGuard, useProjects } from '../../store/projects';
 
 const tail = (path: string) => path.split(/[\\/]/).filter(Boolean).at(-1) ?? path;
 
-/** The native Modera route has its own directory picker and per-run boundary. */
-export default function ModeraCwdChip() {
+/** The native PAL route has its own directory picker and per-run boundary. */
+export default function PalCwdChip() {
   const selectedModel = useUiStore(state => state.selectedModel);
   const activeId = useProjects(state => state.activeId);
   const projects = useProjects(state => state.projects);
@@ -28,7 +28,7 @@ export default function ModeraCwdChip() {
     let alive = true;
     void getModelsOnce().then(data => {
       if (!alive) return;
-      const id = selectedModel === 'modera/native' ? data?.default : selectedModel;
+      const id = selectedModel === 'pal/native' ? data?.default : selectedModel;
       setAgent(!!data?.models.find(model => model.id === id)?.agentRuntime);
     });
     return () => { alive = false; };
@@ -41,7 +41,7 @@ export default function ModeraCwdChip() {
     document.addEventListener('keydown', escape);
     return () => { document.removeEventListener('mousedown', outside); document.removeEventListener('keydown', escape); };
   }, [open]);
-  if (!moderaFrontend || !activeId) return null;
+  if (!palFrontend || !activeId) return null;
 
   const choose = async (path: string | undefined) => {
     await setProjectAgentCwd(activeId, path);
@@ -56,7 +56,7 @@ export default function ModeraCwdChip() {
       <button onClick={() => setOpen(value => !value)}
         className="bg-card/90 backdrop-blur border border-line rounded-lg h-8 px-2.5 flex items-center gap-1.5 shadow-sm hover:bg-wash transition-colors text-xs text-ink max-w-[220px]"
         title={meta?.agentCwd ?? (zh ? '画布工作区' : 'Canvas workspace')}
-        data-modera-cwd>
+        data-pal-cwd>
         <FolderOpen size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" />
         <span className="truncate">{meta?.agentCwd ? tail(meta.agentCwd) : (zh ? '画布工作区' : 'Canvas workspace')}</span>
         <ChevronDown size={12} strokeWidth={1.75} className="text-ink-faint shrink-0" />
@@ -76,17 +76,17 @@ export default function ModeraCwdChip() {
           <span className="flex-1 min-w-0"><span className="block text-ink">{tail(path)}</span><span className="block text-2xs text-ink-faint truncate">{path}</span></span>
         </button>)}
         <div className="border-t border-line/60 my-1" />
-        <button onClick={() => { void moderaFrontend?.pickWorkspaceDirectory().then(path => { if (path) void choose(path); }); }} className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash flex items-center gap-2" data-modera-cwd-pick>
+        <button onClick={() => { void palFrontend?.pickWorkspaceDirectory().then(path => { if (path) void choose(path); }); }} className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash flex items-center gap-2" data-pal-cwd-pick>
           <FolderOpen size={14} className="text-ink-faint shrink-0" /> {zh ? '选择文件夹…' : 'Choose folder…'}
         </button>
         {agent && <>
           <div className="border-t border-line/60 my-1" />
           <p className="text-2xs text-ink-faint uppercase tracking-wider font-medium px-3 pt-1 pb-1">{zh ? '工作目录之外的操作 · Agent' : 'Outside workspace · Agent'}</p>
-          <button onClick={() => void guard('ask')} className="w-full text-left px-3 py-1.5 text-xs hover:bg-wash flex items-center gap-2" data-modera-guard="ask">
+          <button onClick={() => void guard('ask')} className="w-full text-left px-3 py-1.5 text-xs hover:bg-wash flex items-center gap-2" data-pal-guard="ask">
             <ShieldCheck size={14} className="text-ink-faint shrink-0" /><span className="flex-1 text-ink">{zh ? '每次询问' : 'Ask each time'}</span>
             {(meta?.agentGuard?.mode ?? 'ask') === 'ask' && <Check size={13} className="text-accent shrink-0" />}
           </button>
-          <button onClick={() => void guard('allow')} className="w-full text-left px-3 py-1.5 text-xs hover:bg-wash flex items-center gap-2" data-modera-guard="allow">
+          <button onClick={() => void guard('allow')} className="w-full text-left px-3 py-1.5 text-xs hover:bg-wash flex items-center gap-2" data-pal-guard="allow">
             <ShieldOff size={14} className="text-ink-faint shrink-0" /><span className="flex-1 text-ink">{zh ? '直接放行（每次执行需确认）' : 'Allow directly (confirm each run)'}</span>
             {meta?.agentGuard?.mode === 'allow' && <Check size={13} className="text-accent shrink-0" />}
           </button>

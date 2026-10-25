@@ -16,3 +16,6 @@
 
 /upstream/node_modules/
 /upstream/dist/
+
+/*.tgz
+/tsconfig.tsbuildinfo

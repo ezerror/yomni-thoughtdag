@@ -1,7 +1,6 @@
 {
-  "name": "@modera-plugin/thoughtdag",
+  "name": "@anypal-plugin/thoughtdag",
   "version": "0.1.1",
-  "private": true,
   "type": "module",
   "license": "MIT",
   "thoughtdagUpstream": {
@@ -11,22 +10,32 @@
     "base": "1d7676bbee9a583e3381f79443da64cad161350f"
   },
   "files": [
-    "plugin.json",
+    "pal-manifest.json",
     "dist",
     "LICENSE"
   ],
   "scripts": {
-    "build": "npm --prefix upstream ci --ignore-scripts && npm --prefix upstream run build -- --base=./ --outDir=../dist/ui && modera-plugin-build .",
-    "pack": "modera-plugin pack .",
-    "release": "modera-plugin release . --publish",
-    "dev": "node tools/modera-dev.mjs"
+    "typecheck": "tsc --noEmit && npm --prefix upstream exec -- tsc -b",
+    "build": "npm --prefix upstream ci --ignore-scripts --no-audit --no-fund && npm --prefix upstream run build -- --base=./ --outDir=../dist/ui --emptyOutDir && pal-plugin-build .",
+    "pack": "pal-plugin pack .",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "test:ui": "node tests/smoke.mjs"
   },
   "devDependencies": {
-    "@modera/contracts": "file:vendor/modera-contracts-0.1.0.tgz",
-    "@modera/plugin-build": "file:vendor/modera-plugin-build-0.1.0.tgz",
-    "@modera/plugin-sdk": "file:vendor/modera-plugin-sdk-0.1.0.tgz"
+    "@anypal/contracts": "^0.1.0",
+    "@anypal/plugin-build": "^0.1.0",
+    "@anypal/plugin-sdk": "^0.1.0",
+    "@anypal/ui": "^0.1.0",
+    "typescript": "~5.9.3",
+    "@types/node": "^24.10.1"
   },
-  "dependencies": {
-    "@phosphor-icons/react": "^2.1.10"
-  }
+  "dependencies": {},
+  "description": "ThoughtDAG canvas for PAL native conversations",
+  "pal": {
+    "id": "pal.thoughtdag",
+    "apiVersion": 1,
+    "runtime": "node",
+    "manifest": "./pal-manifest.json"
+  },
+  "exports": "./dist/index.cjs"
 }

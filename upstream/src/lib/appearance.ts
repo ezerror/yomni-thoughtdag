@@ -13,11 +13,11 @@ const LS_LIGHTING = 'thoughtdag.lighting';
 const LS_PAPER = 'thoughtdag.paper';
 
 const media = typeof window !== 'undefined' ? window.matchMedia('(prefers-color-scheme: dark)') : null;
-const modera = (window as Window & { moderaPlugin?: {
+const pal = (window as Window & { palPlugin?: {
   snapshot(): Promise<{ theme?: { mode: 'light' | 'dark' } }>;
   onThemeChanged(listener: (theme: { mode: 'light' | 'dark' }) => void): () => void;
   setTheme(mode: Lighting): Promise<void>;
-} }).moderaPlugin;
+} }).palPlugin;
 
 function resolve(lighting: Lighting): 'light' | 'dark' {
   return lighting === 'system' ? (media?.matches ? 'dark' : 'light') : lighting;
@@ -48,7 +48,7 @@ export const useAppearance = create<AppearanceState>((set, get) => ({
   setLighting: (lighting) => {
     localStorage.setItem(LS_LIGHTING, lighting);
     set({ lighting, resolved: apply(lighting, get().paper) });
-    if (modera) void modera.setTheme(lighting);
+    if (pal) void pal.setTheme(lighting);
   },
   setPaper: (paper) => {
     localStorage.setItem(LS_PAPER, paper);
@@ -61,13 +61,13 @@ export const useAppearance = create<AppearanceState>((set, get) => ({
 export function initAppearance(): void {
   const s = useAppearance.getState();
   useAppearance.setState({ resolved: apply(s.lighting, s.paper) });
-  if (modera) {
+  if (pal) {
     const followHost = (mode: 'light' | 'dark') => {
       const state = useAppearance.getState();
       useAppearance.setState({ lighting: mode, resolved: apply(mode, state.paper) });
     };
-    modera.onThemeChanged(theme => followHost(theme.mode));
-    void modera.snapshot().then(snapshot => {
+    pal.onThemeChanged(theme => followHost(theme.mode));
+    void pal.snapshot().then(snapshot => {
       if (snapshot.theme) followHost(snapshot.theme.mode);
     });
   }

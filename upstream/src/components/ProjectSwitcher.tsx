@@ -43,7 +43,7 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
   const activeIsParadigm = projects.find((p) => p.id === activeId)?.kind === 'paradigm';
   const [open, setOpen] = useState(false);
   const [chatImport, setChatImport] = useState<ImportableConversation[] | null>(null);
-  const [mountModera, setMountModera] = useState(false);
+  const [mountPal, setMountPal] = useState(false);
   const [atlasOpen, setAtlasOpen] = useState(false);
   const [atlasFocus, setAtlasFocus] = useState<string | undefined>(undefined);
   const [renamingId, setRenamingId] = useState<string | null>(null);
@@ -218,11 +218,11 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
             >
               <Upload size={15} strokeWidth={1.75} /> {t('switcher.importBackup')}
             </button>
-            {'moderaPlugin' in window && <button
-              onClick={() => { setOpen(false); void import('../lib/modera-sessions').then(m => m.moderaConversations()).then(convs => { setMountModera(true); setChatImport(convs); }).catch(err => toast('error', String(err))); }}
+            {'palPlugin' in window && <button
+              onClick={() => { setOpen(false); void import('../lib/pal-sessions').then(m => m.palConversations()).then(convs => { setMountPal(true); setChatImport(convs); }).catch(err => toast('error', String(err))); }}
               className="w-full text-left px-3 py-2 text-sm text-ink-muted hover:bg-wash transition-colors flex items-center gap-2"
             >
-              <MessageSquare size={15} strokeWidth={1.75} /> 挂载 Modera 会话
+              <MessageSquare size={15} strokeWidth={1.75} /> 挂载 PAL 会话
             </button>}
             <button
               onClick={() => { setOpen(false); setAtlasOpen(true); }}
@@ -270,7 +270,7 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
       {chatImport && (
         <ImportChatModal
           conversations={chatImport}
-          mountProjectId={mountModera ? activeId ?? undefined : undefined}
+          mountProjectId={mountPal ? activeId ?? undefined : undefined}
           onClose={() => setChatImport(null)}
           onDone={() => { setChatImport(null); onSwitched(); }}
         />

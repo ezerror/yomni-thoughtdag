@@ -1,0 +1,58 @@
+{
+  "title": "ThoughtDAG",
+  "author": "Modera contributors and Xia Chen",
+  "category": "productivity",
+  "icon": "box",
+  "activationScope": "global",
+  "locales": {
+    "zh-CN": {
+      "name": "思维画布",
+      "description": "在 PAL 工作台中将对话组织为可编辑的思维图。"
+    }
+  },
+  "permissions": [
+    "pal.history.read",
+    "pal.storage.read",
+    "pal.storage.write",
+    "pal.models.generate"
+  ],
+  "extensions": [
+    "pal.ui.workbench"
+  ],
+  "frontends": {
+    "workbench": {
+      "root": "dist/ui",
+      "entry": "index.html"
+    }
+  },
+  "consumes": {
+    "history": {
+      "contract": "pal.conversations.history",
+      "apiVersion": 1,
+      "autoBind": true
+    }
+  },
+  "declarations": {
+    "provides": {
+      "ui": [
+        {
+          "id": "pal.thoughtdag.workbench",
+          "slot": "pal.ui.workbench",
+          "description": "ThoughtDAG canvas and conversation workbench"
+        }
+      ]
+    },
+    "consumes": {
+      "access": [
+        {
+          "id": "pal.app-conversations.history.list",
+          "reason": "Import conversations from the current PAL project"
+        },
+        {
+          "id": "pal.app-conversations.history.snapshot",
+          "reason": "Read native conversation responses and import messages"
+        }
+      ]
+    }
+  }
+}
