@@ -2,12 +2,10 @@
   "title": "ThoughtDAG",
   "author": "Modera contributors and Xia Chen",
   "category": "productivity",
-  "icon": "box",
-  "activationScope": "global",
-  "locales": {
+  "icon": "box",  "locales": {
     "zh-CN": {
       "name": "思维画布",
-      "description": "在 PAL 工作台中将对话组织为可编辑的思维图。"
+      "description": "在 Yomni 工作台中将对话组织为可编辑的思维图。"
     }
   },
   "permissions": [
@@ -46,7 +44,7 @@
       "access": [
         {
           "id": "pal.app-conversations.history.list",
-          "reason": "Import conversations from the current PAL project"
+          "reason": "Import conversations from the current Yomni project"
         },
         {
           "id": "pal.app-conversations.history.snapshot",

@@ -5,7 +5,7 @@ import { test } from "node:test";
 const require = createRequire(import.meta.url);
 const { activate } = require("../dist/index.cjs");
 
-test("ThoughtDAG uses PAL's project-scoped history service", async () => {
+test("ThoughtDAG uses Yomni's project-scoped history service", async () => {
   const calls = [];
   const host = {
     signal: new AbortController().signal,

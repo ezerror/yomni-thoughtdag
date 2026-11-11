@@ -1,5 +1,5 @@
 {
-  "name": "@anypal-plugin/thoughtdag",
+  "name": "@yomni/plugin-thoughtdag",
   "version": "0.1.1",
   "type": "module",
   "license": "MIT",
@@ -16,21 +16,20 @@
   ],
   "scripts": {
     "typecheck": "tsc --noEmit && npm --prefix upstream exec -- tsc -b",
-    "build": "npm --prefix upstream ci --ignore-scripts --no-audit --no-fund && npm --prefix upstream run build -- --base=./ --outDir=../dist/ui --emptyOutDir && pal-plugin-build .",
-    "pack": "pal-plugin pack .",
+    "build": "npm --prefix upstream ci --ignore-scripts --no-audit --no-fund && npm --prefix upstream run build -- --base=./ --outDir=../dist/ui --emptyOutDir && yomni-plugin-build .",
+    "pack": "yomni-plugin pack .",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "test:ui": "node tests/smoke.mjs"
   },
   "devDependencies": {
-    "@anypal/contracts": "^0.1.0",
-    "@anypal/plugin-build": "^0.1.0",
-    "@anypal/plugin-sdk": "^0.1.0",
-    "@anypal/ui": "^0.1.0",
-    "typescript": "~5.9.3",
-    "@types/node": "^24.10.1"
+    "@types/node": "^24.10.1",
+    "@yomni/contracts": "file:vendor/yomni-devkit/yomni-contracts-0.1.0.tgz",
+    "@yomni/plugin-build": "file:vendor/yomni-devkit/yomni-plugin-build-0.1.0.tgz",
+    "@yomni/plugin-sdk": "file:vendor/yomni-devkit/yomni-plugin-sdk-0.1.0.tgz",
+    "@yomni/ui": "file:vendor/yomni-devkit/yomni-ui-0.1.0.tgz",
+    "typescript": "~5.9.3"
   },
-  "dependencies": {},
-  "description": "ThoughtDAG canvas for PAL native conversations",
+  "description": "ThoughtDAG canvas for Yomni native conversations",
   "pal": {
     "id": "pal.thoughtdag",
     "apiVersion": 1,

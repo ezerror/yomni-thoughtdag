@@ -30,7 +30,7 @@ try {
         window.lastNativeRequest = input;
         return { sessionId: "native-session" };
       },
-      listModels: async () => [{ id: "pal/native", name: "PAL", provider: "PAL", vision: false, efforts: ["medium"], defaultEffort: "medium" }],
+      listModels: async () => [{ id: "pal/native", name: "Yomni", provider: "Yomni", vision: false, efforts: ["medium"], defaultEffort: "medium" }],
       pickWorkspaceDirectory: async () => "C:\\canvas-work",
       onThemeChanged: () => () => {},
       setTheme: async () => {},
@@ -54,15 +54,15 @@ try {
     const stream = await fetch("/api/stream", { method: "POST", body: JSON.stringify({ messages: [{ role: "user", content: "Question" }] }) }).then(response => response.text());
     return { models, stream, question: window.lastNativeQuestion, request: window.lastNativeRequest };
   });
-  if (bridge.models.default !== "pal/native" || !bridge.stream.includes("Native answer") || bridge.question !== "Question" || bridge.request.workspacePath !== "C:\\canvas-work" || !bridge.request.canvasId) throw new Error("PAL model/workspace bridge did not answer");
+  if (bridge.models.default !== "pal/native" || !bridge.stream.includes("Native answer") || bridge.question !== "Question" || bridge.request.workspacePath !== "C:\\canvas-work" || !bridge.request.canvasId) throw new Error("Yomni model/workspace bridge did not answer");
   const concurrent = await page.evaluate(async () => {
     const body = JSON.stringify({ messages: [{ role: "user", content: "Question" }] });
     const replies = await Promise.all([0, 1].map(() => fetch("/api/claude", { method: "POST", body }).then(response => response.json())));
     return { replies, maxHistoryCalls: window.historyMax };
   });
-  if (concurrent.replies.some(reply => reply.text !== "Native answer") || concurrent.maxHistoryCalls !== 1) throw new Error("PAL history bridge did not serialize concurrent reads");
+  if (concurrent.replies.some(reply => reply.text !== "Native answer") || concurrent.maxHistoryCalls !== 1) throw new Error("Yomni history bridge did not serialize concurrent reads");
   if (errors.length) throw new Error(errors.join("\n"));
-  process.stdout.write(`ThoughtDAG SPA and PAL model/history bridge rendered in browser: ${await page.title()}\n`);
+  process.stdout.write(`ThoughtDAG SPA and Yomni model/history bridge rendered in browser: ${await page.title()}\n`);
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));

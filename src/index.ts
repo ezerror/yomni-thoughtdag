@@ -1,4 +1,4 @@
-import type { PluginModule } from "@anypal/plugin-sdk";
+import type { PluginModule } from "@yomni/plugin-sdk";
 
 type HistoryRequest = { id: string; kind: "conversations" | "conversation"; sessionId?: string; cursor?: string };
 type BridgeResult = { id: string; value?: unknown; error?: string };
