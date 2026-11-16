@@ -55,11 +55,6 @@ try {
     return { models, stream, question: window.lastNativeQuestion, request: window.lastNativeRequest };
   });
   if (bridge.models.default !== "yomni/native" || !bridge.stream.includes("Native answer") || bridge.question !== "Question" || bridge.request.workspacePath !== "C:\\canvas-work" || !bridge.request.canvasId) throw new Error("Yomni model/workspace bridge did not answer");
-  const legacy = await page.evaluate(async () => {
-    await fetch("/api/claude", { method: "POST", body: JSON.stringify({ model: "pal/native", messages: [{ role: "user", content: "Existing canvas" }] }) }).then(response => response.json());
-    return window.lastNativeRequest;
-  });
-  if (legacy.modelId !== undefined || legacy.content !== "Existing canvas") throw new Error("Legacy native canvas selection was not normalized");
   const concurrent = await page.evaluate(async () => {
     const body = JSON.stringify({ messages: [{ role: "user", content: "Question" }] });
     const replies = await Promise.all([0, 1].map(() => fetch("/api/claude", { method: "POST", body }).then(response => response.json())));

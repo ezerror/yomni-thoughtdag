@@ -51,7 +51,7 @@ if (frontend) {
   const modelOf = (body: unknown): string | undefined => {
     const id = (body as { model?: unknown })?.model;
     // Existing canvases may retain the pre-rename native placeholder.
-    return typeof id === 'string' && id !== 'yomni/native' && id !== 'pal/native' ? id : undefined;
+    return typeof id === 'string' && id !== 'yomni/native' ? id : undefined;
   };
   const effortOf = (body: unknown): string | undefined => {
     const effort = (body as { reasoningEffort?: unknown })?.reasoningEffort;
