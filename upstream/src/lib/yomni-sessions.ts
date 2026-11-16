@@ -2,15 +2,15 @@ import { makeNode, type ImportableConversation } from './import-chat';
 import { autoLayout } from './layout';
 import type { ThoughtEdge, ThoughtNode } from '../types';
 
-import { readPalHistory } from './pal-bridge';
+import { readYomniHistory } from './yomni-bridge';
 
 type Page = { title?: string; messages?: { id: string; role: string; text: string }[]; nextCursor?: string | null };
 type Catalog = { conversations?: { id: string; title: string }[]; nextCursor?: string | null };
 
 const read = (kind: 'conversations' | 'conversation', sessionId?: string, cursor?: string) =>
-  readPalHistory({ kind, sessionId, cursor });
+  readYomniHistory({ kind, sessionId, cursor });
 
-export async function palConversations(): Promise<ImportableConversation[]> {
+export async function yomniConversations(): Promise<ImportableConversation[]> {
   const entries: { id: string; title: string }[] = [];
   let cursor: string | undefined;
   for (let page = 0; page < 100; page++) {
@@ -29,7 +29,7 @@ export async function palConversations(): Promise<ImportableConversation[]> {
       next = value.nextCursor;
     }
     return {
-      title: entry.title, source: 'pal' as const, sessionId: entry.id, messageCount: messages.length,
+      title: entry.title, source: 'yomni' as const, sessionId: entry.id, messageCount: messages.length,
       build: () => {
         const nodes: ThoughtNode[] = [];
         const edges: ThoughtEdge[] = [];
@@ -38,7 +38,7 @@ export async function palConversations(): Promise<ImportableConversation[]> {
           if (message.role === 'user') pending = { id: message.id, text: message.text };
           else if (message.role === 'assistant' && pending) {
             const node = makeNode(pending.text, message.text, nodes.length === 0);
-            node.data.importSource = { runner: 'pal', sessionId: entry.id, itemIds: [pending.id, message.id] };
+            node.data.importSource = { runner: 'yomni', sessionId: entry.id, itemIds: [pending.id, message.id] };
             const previous = nodes.at(-1);
             if (previous) edges.push({ id: `edge-${previous.id}-${node.id}`, source: previous.id, target: node.id, type: 'smoothstep', sourceHandle: 'continue', targetHandle: 'top', data: {} });
             nodes.push(node);

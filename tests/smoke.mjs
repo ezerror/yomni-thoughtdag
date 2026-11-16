@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { readFile } from "node:fs/promises";
+import { readFile, mkdir } from "node:fs/promises";
 import { resolve, extname, sep } from "node:path";
 import { chromium } from "../upstream/node_modules/playwright-core/index.mjs";
 
@@ -32,7 +32,7 @@ try {
       },
       listModels: async () => [{ id: "yomni/native", name: "Yomni", provider: "Yomni", vision: false, efforts: ["medium"], defaultEffort: "medium" }],
       pickWorkspaceDirectory: async () => "C:\\canvas-work",
-      onThemeChanged: () => () => {},
+      onThemeChanged: listener => { window.yomniThemeChanged = listener; return () => { delete window.yomniThemeChanged; }; },
       setTheme: async () => {},
       snapshot: async () => ({ theme: { mode: "light" }, conversation: { sessionId: "native-session", messages: [{ role: "assistant", text: "Native answer" }], run: { status: "completed" } } }),
       action: async (_action, value) => {
@@ -55,12 +55,25 @@ try {
     return { models, stream, question: window.lastNativeQuestion, request: window.lastNativeRequest };
   });
   if (bridge.models.default !== "yomni/native" || !bridge.stream.includes("Native answer") || bridge.question !== "Question" || bridge.request.workspacePath !== "C:\\canvas-work" || !bridge.request.canvasId) throw new Error("Yomni model/workspace bridge did not answer");
+  const legacy = await page.evaluate(async () => {
+    await fetch("/api/claude", { method: "POST", body: JSON.stringify({ model: "pal/native", messages: [{ role: "user", content: "Existing canvas" }] }) }).then(response => response.json());
+    return window.lastNativeRequest;
+  });
+  if (legacy.modelId !== undefined || legacy.content !== "Existing canvas") throw new Error("Legacy native canvas selection was not normalized");
   const concurrent = await page.evaluate(async () => {
     const body = JSON.stringify({ messages: [{ role: "user", content: "Question" }] });
     const replies = await Promise.all([0, 1].map(() => fetch("/api/claude", { method: "POST", body }).then(response => response.json())));
     return { replies, maxHistoryCalls: window.historyMax };
   });
   if (concurrent.replies.some(reply => reply.text !== "Native answer") || concurrent.maxHistoryCalls !== 1) throw new Error("Yomni history bridge did not serialize concurrent reads");
+  const screenshots = resolve(import.meta.dirname, "../release/ui-recheck");
+  await mkdir(screenshots, { recursive: true });
+  await page.screenshot({ path: resolve(screenshots, "light.png") });
+  await page.evaluate(() => window.yomniThemeChanged({ mode: "dark" }));
+  await page.waitForFunction(() => document.documentElement.dataset.theme === "dark");
+  await page.screenshot({ path: resolve(screenshots, "dark.png") });
+  await page.setViewportSize({ width: 800, height: 600 });
+  await page.screenshot({ path: resolve(screenshots, "dark-narrow.png") });
   if (errors.length) throw new Error(errors.join("\n"));
   process.stdout.write(`ThoughtDAG SPA and Yomni model/history bridge rendered in browser: ${await page.title()}\n`);
 } finally {

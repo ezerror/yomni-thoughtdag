@@ -1,9 +1,9 @@
-// Adapt the existing ThoughtDAG SPA's proxy protocol to PAL's native
-// conversation workbench. This module only installs inside a PAL frontend.
+// Adapt the existing ThoughtDAG SPA's proxy protocol to Yomni's native
+// conversation workbench. This module only installs inside a Yomni frontend.
 import { useProjects } from '../store/projects';
 import { getModelsOnce } from './use-models';
 type BridgeResult = { id: string; value?: unknown; error?: string };
-type PalFrontend = {
+type YomniFrontend = {
   requestConversation(input: { workspaceKey: string; canvasId?: string; content: string; contextInput?: string; references: []; hidden?: boolean; modelId?: string; reasoningEffort?: string; workspacePath?: string; workspaceGuard?: 'ask' | 'allow' }): Promise<{ sessionId: string }>;
   pickWorkspaceDirectory(): Promise<string | null>;
   listModels(): Promise<readonly { id: string; name: string; provider: string; vision: boolean; efforts: readonly string[]; defaultEffort: string; agentRuntime?: string }[]>;
@@ -11,17 +11,17 @@ type PalFrontend = {
   snapshot(): Promise<{ conversation?: { sessionId: string; live?: { text: string; thinking: string }; run?: { status: string }; messages: { role: string; text: string }[] } }>;
 };
 
-const frontend = (window as Window & { palPlugin?: PalFrontend }).palPlugin;
-export const palFrontend = frontend;
+const frontend = (window as Window & { yomniPlugin?: YomniFrontend }).yomniPlugin;
+export const yomniFrontend = frontend;
 
 let historyQueue: Promise<unknown> = Promise.resolve();
-export function readPalHistory(input: { kind: 'conversations' | 'conversation'; sessionId?: string; cursor?: string }): Promise<unknown> {
-  if (!frontend) return Promise.reject(new Error('PAL frontend unavailable'));
+export function readYomniHistory(input: { kind: 'conversations' | 'conversation'; sessionId?: string; cursor?: string }): Promise<unknown> {
+  if (!frontend) return Promise.reject(new Error('Yomni frontend unavailable'));
   const run = async () => {
     const id = crypto.randomUUID();
     const snapshot = await frontend.action('bridge.history', JSON.stringify({ id, ...input }));
     const result = snapshot.view.data?.bridgeResult;
-    if (result?.id !== id) throw new Error('PAL history response changed');
+    if (result?.id !== id) throw new Error('Yomni history response changed');
     if (result.error) throw new Error(result.error);
     return result.value;
   };
@@ -35,7 +35,7 @@ if (frontend) {
   const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'content-type': 'application/json' } });
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   const history = async (sessionId: string): Promise<{ messages?: { role: string; text: string }[]; run?: { status: string } }> =>
-    await readPalHistory({ kind: 'conversation', sessionId }) as { messages?: { role: string; text: string }[]; run?: { status: string } };
+    await readYomniHistory({ kind: 'conversation', sessionId }) as { messages?: { role: string; text: string }[]; run?: { status: string } };
   const questionOf = (body: unknown): string => {
     const messages = (body as { messages?: { role: string; content: string }[] })?.messages;
     return [...(messages ?? [])].reverse().find(item => item.role === 'user')?.content?.trim() ?? '';
@@ -50,7 +50,8 @@ if (frontend) {
   };
   const modelOf = (body: unknown): string | undefined => {
     const id = (body as { model?: unknown })?.model;
-    return typeof id === 'string' && id !== 'pal/native' ? id : undefined;
+    // Existing canvases may retain the pre-rename native placeholder.
+    return typeof id === 'string' && id !== 'yomni/native' && id !== 'pal/native' ? id : undefined;
   };
   const effortOf = (body: unknown): string | undefined => {
     const effort = (body as { reasoningEffort?: unknown })?.reasoningEffort;
@@ -157,7 +158,7 @@ if (frontend) {
       const body = JSON.parse(String(init?.body ?? '{}'));
       if (url.pathname === '/api/stream') return streamAnswer(body, init?.signal ?? undefined);
       const result = await answer(body, init?.signal ?? undefined);
-      return json({ text: result.text, model: 'pal/native' });
+      return json({ text: result.text, model: 'yomni/native' });
     } catch (cause) {
       return json({ error: cause instanceof Error ? cause.message : String(cause) }, 500);
     }

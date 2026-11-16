@@ -37,7 +37,7 @@ interface PickerProps {
 // GLOBAL selection; with value/onChange it edits a per-node override and
 // offers an "inherit" entry.
 export default function ModelPicker({ value, onChange, compact }: PickerProps) {
-  const pal = (window as Window & { palPlugin?: { openSettings(page?: string): Promise<void> } }).palPlugin;
+  const yomni = (window as Window & { yomniPlugin?: { openSettings(page?: string): Promise<void> } }).yomniPlugin;
   const t = useT();
   const nodeMode = !!onChange;
   const selectedModel = useUiStore((s) => s.selectedModel);
@@ -112,14 +112,14 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
     if (nodeMode) onChange!(id ?? undefined);
     else setSelectedModel(id === data?.default ? null : id);
     const m = id ? models.find((x) => x.id === id) : null;
-    if (m && (isAgentModel(m.id) || pal) && (m.efforts?.length ?? 0) > 0) { setEffortStepFor(m.id); return; }
+    if (m && (isAgentModel(m.id) || yomni) && (m.efforts?.length ?? 0) > 0) { setEffortStepFor(m.id); return; }
     setOpen(false);
   };
   // the level the next turn will run at, as far as the runtime told us
   const effortWord = (m: ModelInfo | null | undefined): string => {
-    if (!m || !(isAgentModel(m.id) || pal) || !m.efforts?.length) return '';
+    if (!m || !(isAgentModel(m.id) || yomni) || !m.efforts?.length) return '';
     const effort = m.efforts.includes(agentEffort) ? agentEffort : (m.defaultEffort ?? '');
-    return pal && effort === 'none' ? '' : effort;
+    return yomni && effort === 'none' ? '' : effort;
   };
   const withEffort = (m: ModelInfo) => (effortWord(m) ? `${m.name} · ${effortWord(m)}` : m.name);
 
@@ -138,7 +138,7 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
           // no model yet: the door is the key dialog — unless the host looked for
           // agent CLIs, in which case the picker has something to say (which
           // runtime it did not find, and where; plus the same key entry)
-          if (noModels && pal) void pal.openSettings('models');
+          if (noModels && yomni) void yomni.openSettings('models');
           else if (noModels && !agentsAsked) useUiStore.getState().setApiKeyModalOpen(true);
           else { setEffortStepFor(null); setOpen((v) => !v); }
         }}
@@ -248,8 +248,8 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
               ))}
             </div>
           ))}
-          {!nodeMode && !pal && <JudgeRow onOpen={() => { setOpen(false); useUiStore.getState().setApiKeyModalOpen(true, 'judge'); }} />}
-          {!nodeMode && !pal && (
+          {!nodeMode && !yomni && <JudgeRow onOpen={() => { setOpen(false); useUiStore.getState().setApiKeyModalOpen(true, 'judge'); }} />}
+          {!nodeMode && !yomni && (
             <div className="flex items-center pr-1 border-t border-line mt-1 pt-1">
             <span className="text-2xs text-ink-faint uppercase tracking-wider font-medium px-3 py-1.5 shrink-0">{t('model.interfaces')}</span>
             {<button
@@ -277,11 +277,11 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
             </button>
             </div>
           )}
-          {!nodeMode && !!pal && <div className="border-t border-line mt-1 pt-1 flex items-center justify-between px-3 py-1.5">
-            <button className="text-xs text-ink-muted hover:text-accent" onClick={() => { setOpen(false); void pal.openSettings('models'); }}>{t('model.interfaces')}</button>
+          {!nodeMode && !!yomni && <div className="border-t border-line mt-1 pt-1 flex items-center justify-between px-3 py-1.5">
+            <button className="text-xs text-ink-muted hover:text-accent" onClick={() => { setOpen(false); void yomni.openSettings('models'); }}>{t('model.interfaces')}</button>
             <button className="text-xs text-ink-muted hover:text-accent flex items-center gap-1" onClick={() => { setRefreshing(true); void fetch('/api/models').then(r => r.json()).then(d => setModelsCache({ models: d.models ?? [], default: d.default ?? null, capabilities: d.capabilities })).finally(() => setRefreshing(false)); }} disabled={refreshing}><RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />{t('model.refreshList')}</button>
           </div>}
-          {!nodeMode && !pal && <GlobalCapabilities />}
+          {!nodeMode && !yomni && <GlobalCapabilities />}
         </div>
       )}
     </div>

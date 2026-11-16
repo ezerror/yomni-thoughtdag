@@ -111,7 +111,7 @@ function withResolvedNames(models: ModelInfo[]): ModelInfo[] {
  *  API model by its bare name. Pure: reads only the local caches. */
 export function describeModel(id: string | null | undefined, effort?: string | null, opts?: { /** the card form: runtime · model · effort, without the resolved name */ compact?: boolean }): string {
   if (!id) return '';
-  if (typeof window !== 'undefined' && (window as Window & { palPlugin?: unknown }).palPlugin && id.includes('::')) return id.slice(id.indexOf('::') + 2);
+  if (typeof window !== 'undefined' && (window as Window & { yomniPlugin?: unknown }).yomniPlugin && id.includes('::')) return id.slice(id.indexOf('::') + 2);
   const target = agentTarget(id);
   if (!target) return id.split('/').pop() ?? id;
   let remembered: ModelInfo[] = [];

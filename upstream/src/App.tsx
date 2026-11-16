@@ -118,7 +118,7 @@ import LadderJobCard from './components/ui/LadderJobCard';
 if (import.meta.env.DEV) void import('./lib/ladder-lab');
 import ReleaseNotesDialog from './components/ui/ReleaseNotesDialog';
 import AgentCwdChip from './components/ui/AgentCwdChip';
-import PalCwdChip from './components/ui/PalCwdChip';
+import YomniCwdChip from './components/ui/YomniCwdChip';
 import { pluginUpdateCommand } from './lib/plugin-update';
 import { useT, t as ti, fmt, useI18n } from './i18n';
 import { isViewerMode, buildViewerLink } from './lib/viewer';
@@ -1681,7 +1681,7 @@ function Canvas() {
           </>
         )}
         {!isParadigm && <AgentCwdChip />}
-        {!isParadigm && <PalCwdChip />}
+        {!isParadigm && <YomniCwdChip />}
         {!isParadigm && <ModelPicker />}
         {/* Landing convenience only: inside the canvas the picker's own
             empty state (Connect a model) is the door — no twin key icon. */}
