@@ -7,12 +7,12 @@ export const activate: PluginModule["activate"] = async (host) => {
   const results = new Map<string, BridgeResult>();
   return {
     ui: [{
-      id: "pal.thoughtdag.workbench",
-      slot: "pal.ui.workbench",
+      id: "yomni.thoughtdag.workbench",
+      slot: "yomni.ui.workbench",
       frontend: "workbench",
       workbench: { title: "ThoughtDAG", icon: "waypoints", order: -105, locales: { "zh-CN": { title: "思维画布" } } },
       conversationView: { title: "ThoughtDAG", placement: "workbench", nativeRequests: true, canvasOnly: true, locales: { "zh-CN": { title: "思维画布" } } },
-      requiredPermissions: ["pal.history.read", "pal.storage.read", "pal.storage.write", "pal.models.generate"],
+      requiredPermissions: ["yomni.history.read", "yomni.storage.read", "yomni.storage.write", "yomni.models.generate"],
       actions: ["bridge.history"],
       async render(_request, context) {
         return { title: "ThoughtDAG", conversationView: { workspaceKey: "thoughtdag", hasContent: true }, data: { bridgeResult: context.projectId ? results.get(context.projectId) : undefined }, children: [] };

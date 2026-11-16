@@ -18,7 +18,7 @@ test("ThoughtDAG uses Yomni's project-scoped history service", async () => {
   const module = await activate(host);
   const ui = module.ui[0];
   const context = { projectId: "project", signal: new AbortController().signal };
-  assert.equal(ui.slot, "pal.ui.workbench");
+  assert.equal(ui.slot, "yomni.ui.workbench");
   assert.equal((await ui.render({}, context)).conversationView.workspaceKey, "thoughtdag");
   await ui.act({ id: "bridge.history", value: JSON.stringify({ id: "list", kind: "conversations" }) }, context);
   assert.deepEqual((await ui.render({}, context)).data.bridgeResult.value.conversations, [{ id: "session", title: "Example" }]);

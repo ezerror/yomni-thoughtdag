@@ -23,14 +23,14 @@ try {
   await page.addInitScript(() => {
     window.historyActive = 0;
     window.historyMax = 0;
-    window.palPlugin = {
+    window.yomniPlugin = {
       requestConversation: async input => {
         if (input.workspaceKey !== "thoughtdag") throw new Error("Wrong workspace");
         window.lastNativeQuestion = input.content;
         window.lastNativeRequest = input;
         return { sessionId: "native-session" };
       },
-      listModels: async () => [{ id: "pal/native", name: "Yomni", provider: "Yomni", vision: false, efforts: ["medium"], defaultEffort: "medium" }],
+      listModels: async () => [{ id: "yomni/native", name: "Yomni", provider: "Yomni", vision: false, efforts: ["medium"], defaultEffort: "medium" }],
       pickWorkspaceDirectory: async () => "C:\\canvas-work",
       onThemeChanged: () => () => {},
       setTheme: async () => {},
@@ -46,15 +46,15 @@ try {
   });
   await page.goto(`http://127.0.0.1:${server.address().port}/`);
   await page.locator(".react-flow").first().waitFor({ timeout: 15000 }).catch(async error => { throw new Error(`${error.message}\nPage errors: ${errors.join('; ')}\nBody: ${(await page.locator('body').innerText()).slice(0, 500)}`); });
-  await page.locator('[data-pal-cwd]').click();
-  await page.locator('[data-pal-cwd-pick]').click();
-  await page.locator('[data-pal-cwd]').filter({ hasText: 'canvas-work' }).waitFor();
+  await page.locator('[data-yomni-cwd]').click();
+  await page.locator('[data-yomni-cwd-pick]').click();
+  await page.locator('[data-yomni-cwd]').filter({ hasText: 'canvas-work' }).waitFor();
   const bridge = await page.evaluate(async () => {
     const models = await fetch("/api/models").then(response => response.json());
     const stream = await fetch("/api/stream", { method: "POST", body: JSON.stringify({ messages: [{ role: "user", content: "Question" }] }) }).then(response => response.text());
     return { models, stream, question: window.lastNativeQuestion, request: window.lastNativeRequest };
   });
-  if (bridge.models.default !== "pal/native" || !bridge.stream.includes("Native answer") || bridge.question !== "Question" || bridge.request.workspacePath !== "C:\\canvas-work" || !bridge.request.canvasId) throw new Error("Yomni model/workspace bridge did not answer");
+  if (bridge.models.default !== "yomni/native" || !bridge.stream.includes("Native answer") || bridge.question !== "Question" || bridge.request.workspacePath !== "C:\\canvas-work" || !bridge.request.canvasId) throw new Error("Yomni model/workspace bridge did not answer");
   const concurrent = await page.evaluate(async () => {
     const body = JSON.stringify({ messages: [{ role: "user", content: "Question" }] });
     const replies = await Promise.all([0, 1].map(() => fetch("/api/claude", { method: "POST", body }).then(response => response.json())));

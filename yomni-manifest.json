@@ -2,20 +2,21 @@
   "title": "ThoughtDAG",
   "author": "Modera contributors and Xia Chen",
   "category": "productivity",
-  "icon": "box",  "locales": {
+  "icon": "box",
+  "locales": {
     "zh-CN": {
       "name": "思维画布",
       "description": "在 Yomni 工作台中将对话组织为可编辑的思维图。"
     }
   },
   "permissions": [
-    "pal.history.read",
-    "pal.storage.read",
-    "pal.storage.write",
-    "pal.models.generate"
+    "yomni.history.read",
+    "yomni.storage.read",
+    "yomni.storage.write",
+    "yomni.models.generate"
   ],
   "extensions": [
-    "pal.ui.workbench"
+    "yomni.ui.workbench"
   ],
   "frontends": {
     "workbench": {
@@ -25,7 +26,7 @@
   },
   "consumes": {
     "history": {
-      "contract": "pal.conversations.history",
+      "contract": "yomni.conversations.history",
       "apiVersion": 1,
       "autoBind": true
     }
@@ -34,8 +35,8 @@
     "provides": {
       "ui": [
         {
-          "id": "pal.thoughtdag.workbench",
-          "slot": "pal.ui.workbench",
+          "id": "yomni.thoughtdag.workbench",
+          "slot": "yomni.ui.workbench",
           "description": "ThoughtDAG canvas and conversation workbench"
         }
       ]
@@ -43,11 +44,11 @@
     "consumes": {
       "access": [
         {
-          "id": "pal.app-conversations.history.list",
+          "id": "yomni.app-conversations.history.list",
           "reason": "Import conversations from the current Yomni project"
         },
         {
-          "id": "pal.app-conversations.history.snapshot",
+          "id": "yomni.app-conversations.history.snapshot",
           "reason": "Read native conversation responses and import messages"
         }
       ]

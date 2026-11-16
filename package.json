@@ -10,7 +10,7 @@
     "base": "1d7676bbee9a583e3381f79443da64cad161350f"
   },
   "files": [
-    "pal-manifest.json",
+    "yomni-manifest.json",
     "dist",
     "LICENSE"
   ],
@@ -30,11 +30,11 @@
     "typescript": "~5.9.3"
   },
   "description": "ThoughtDAG canvas for Yomni native conversations",
-  "pal": {
-    "id": "pal.thoughtdag",
+  "yomni": {
+    "id": "yomni.thoughtdag",
     "apiVersion": 1,
     "runtime": "node",
-    "manifest": "./pal-manifest.json"
+    "manifest": "./yomni-manifest.json"
   },
   "exports": "./dist/index.cjs"
 }
