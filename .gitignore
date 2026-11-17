@@ -19,3 +19,5 @@
 
 /*.tgz
 /tsconfig.tsbuildinfo
+/ui/canvas.css
+/artifacts-*.log

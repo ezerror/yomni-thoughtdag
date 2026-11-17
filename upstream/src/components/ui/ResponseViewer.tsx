@@ -1,3 +1,4 @@
+import { appearanceRoot } from '../../lib/yomni-runtime';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { GitBranchIcon as GitBranch } from "@phosphor-icons/react/dist/csr/GitBranch";
@@ -211,5 +212,5 @@ export default function ResponseViewer() {
         )}
       </div>
     </div>
-  ), document.body);
+  ), appearanceRoot());
 }

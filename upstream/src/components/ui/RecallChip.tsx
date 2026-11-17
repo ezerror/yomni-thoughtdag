@@ -1,3 +1,5 @@
+import { eventTarget } from '../../lib/yomni-runtime';
+import { appearanceRoot } from '../../lib/yomni-runtime';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useUiStore, confirmDialog, toast } from '../../lib/ui-store';
@@ -41,7 +43,7 @@ export default function RecallChip({ nodeId }: { nodeId?: string } = {}) {
   const menu = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
-    const away = (e: MouseEvent) => { const el = e.target as Node; if (!root.current?.contains(el) && !menu.current?.contains(el)) setOpen(null); };
+    const away = (e: MouseEvent) => { const el = eventTarget(e) as Node; if (!root.current?.contains(el) && !menu.current?.contains(el)) setOpen(null); };
     const key = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(null); };
     document.addEventListener('mousedown', away);
     document.addEventListener('keydown', key);
@@ -117,7 +119,7 @@ export default function RecallChip({ nodeId }: { nodeId?: string } = {}) {
             {!nodeId && <button type="button" onClick={setDefault} disabled={!changed} className="text-2xs text-accent hover:underline disabled:opacity-40 disabled:no-underline" data-recall-menu-default>{t('recall.menuDefault')}</button>}
           </div>
         </div>,
-        document.body,
+        appearanceRoot(),
       )}
     </div>
   );

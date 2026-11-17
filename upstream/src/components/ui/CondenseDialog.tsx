@@ -1,3 +1,4 @@
+import { appearanceRoot } from '../../lib/yomni-runtime';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ArchiveIcon as Archive } from "@phosphor-icons/react/dist/csr/Archive";
@@ -225,5 +226,5 @@ export default function CondenseDialog({ onFocusSegment }: { onFocusSegment?: (n
         </div>
       )}
     </div>
-  ), document.body);
+  ), appearanceRoot());
 }

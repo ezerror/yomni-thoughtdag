@@ -1,3 +1,4 @@
+import { appearanceRoot } from '../lib/yomni-runtime';
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import RecallResults from './ui/RecallResults';
 import MemoryPage from './ui/MemoryPage';
@@ -866,6 +867,6 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId, init
         )}
       </div>
     </div>,
-    document.body,
+    appearanceRoot(),
   );
 }

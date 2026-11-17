@@ -1,3 +1,4 @@
+import { appearanceRoot } from '../../lib/yomni-runtime';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeftIcon as ArrowLeft } from "@phosphor-icons/react/dist/csr/ArrowLeft";
@@ -547,5 +548,5 @@ export default function ThoughtMapDialog() {
         )}
       </div>
     </div>
-  ), document.body);
+  ), appearanceRoot());
 }

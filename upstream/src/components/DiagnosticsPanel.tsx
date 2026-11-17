@@ -1,3 +1,4 @@
+import { eventTarget } from '../lib/yomni-runtime';
 import { useEffect, useRef, useState } from 'react';
 import { CrosshairIcon as Crosshair } from "@phosphor-icons/react/dist/csr/Crosshair";
 import { StethoscopeIcon as Stethoscope } from "@phosphor-icons/react/dist/csr/Stethoscope";
@@ -42,7 +43,7 @@ export default function DiagnosticsPanel({ onLocate, openPing = 0, showTrigger =
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+      if (!ref.current?.contains(eventTarget(e) as Node)) setOpen(false);
     };
     window.addEventListener('mousedown', handler);
     return () => window.removeEventListener('mousedown', handler);

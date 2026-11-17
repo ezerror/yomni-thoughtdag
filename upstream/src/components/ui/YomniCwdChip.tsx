@@ -1,3 +1,4 @@
+import { eventTarget } from '../../lib/yomni-runtime';
 import { useEffect, useRef, useState } from 'react';
 import { CheckIcon as Check } from "@phosphor-icons/react/dist/csr/Check";
 import { CaretDownIcon as ChevronDown } from "@phosphor-icons/react/dist/csr/CaretDown";
@@ -35,7 +36,7 @@ export default function YomniCwdChip() {
   }, [selectedModel]);
   useEffect(() => {
     if (!open) return;
-    const outside = (event: MouseEvent) => { if (!root.current?.contains(event.target as Node)) setOpen(false); };
+    const outside = (event: MouseEvent) => { if (!root.current?.contains(eventTarget(event) as Node)) setOpen(false); };
     const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') setOpen(false); };
     document.addEventListener('mousedown', outside);
     document.addEventListener('keydown', escape);

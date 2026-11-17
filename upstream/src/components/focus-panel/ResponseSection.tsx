@@ -1,3 +1,4 @@
+import { eventTarget } from '../../lib/yomni-runtime';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { describeModel } from '../../lib/use-models';
 import { WarningIcon as AlertTriangle } from "@phosphor-icons/react/dist/csr/Warning";
@@ -59,7 +60,7 @@ export default function ResponseSection({
     title: `${t('node.exploredHere')} · ${m.question.slice(0, 80)}`,
   }));
   const handleExploreMarkClick = (e: React.MouseEvent) => {
-    const m = (e.target as HTMLElement).closest?.('mark[data-explore-target]');
+    const m = (eventTarget(e) as HTMLElement).closest?.('mark[data-explore-target]');
     if (!m) return;
     if (window.getSelection()?.toString()) return; // a drag-select, not a click
     e.stopPropagation();
@@ -91,7 +92,7 @@ export default function ResponseSection({
   // Text selection handler
   const handleTextSelection = useCallback((e: MouseEvent) => {
     // Don't clear selection if clicking inside an input/textarea (branch input, etc.)
-    const target = e.target as HTMLElement;
+    const target = eventTarget(e) as HTMLElement;
     if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'BUTTON') {
       return;
     }

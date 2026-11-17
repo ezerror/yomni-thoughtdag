@@ -1,3 +1,4 @@
+import { appearanceRoot } from '../../lib/yomni-runtime';
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CameraIcon as Camera } from "@phosphor-icons/react/dist/csr/Camera";
@@ -449,5 +450,5 @@ export default function ApiKeyModal() {
         </div>
       </div>
     </div>
-  ), document.body);
+  ), appearanceRoot());
 }

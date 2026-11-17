@@ -2,6 +2,8 @@
 // conversation workbench. This module only installs inside a Yomni frontend.
 import { useProjects } from '../store/projects';
 import { getModelsOnce } from './use-models';
+import { yomniFrontend, installYomniTransport, callYomniBridge } from './yomni-runtime';
+import { useI18n } from '../i18n';
 type BridgeResult = { id: string; value?: unknown; error?: string };
 type YomniFrontend = {
   requestConversation(input: { workspaceKey: string; canvasId?: string; content: string; contextInput?: string; references: []; hidden?: boolean; modelId?: string; reasoningEffort?: string; workspacePath?: string; workspaceGuard?: 'ask' | 'allow' }): Promise<{ sessionId: string }>;
@@ -11,29 +13,23 @@ type YomniFrontend = {
   snapshot(): Promise<{ conversation?: { sessionId: string; live?: { text: string; thinking: string }; run?: { status: string }; messages: { role: string; text: string }[] } }>;
 };
 
-const frontend = (window as Window & { yomniPlugin?: YomniFrontend }).yomniPlugin;
-export const yomniFrontend = frontend;
+const frontend = yomniFrontend as YomniFrontend | undefined;
+export { yomniFrontend };
 
-let historyQueue: Promise<unknown> = Promise.resolve();
 export function readYomniHistory(input: { kind: 'conversations' | 'conversation'; sessionId?: string; cursor?: string }): Promise<unknown> {
-  if (!frontend) return Promise.reject(new Error('Yomni frontend unavailable'));
-  const run = async () => {
-    const id = crypto.randomUUID();
-    const snapshot = await frontend.action('bridge.history', JSON.stringify({ id, ...input }));
-    const result = snapshot.view.data?.bridgeResult;
-    if (result?.id !== id) throw new Error('Yomni history response changed');
-    if (result.error) throw new Error(result.error);
-    return result.value;
-  };
-  const pending = historyQueue.then(run, run);
-  historyQueue = pending.then(() => undefined, () => undefined);
-  return pending;
+  return callYomniBridge('bridge.history', input);
 }
 
 if (frontend) {
   const originalFetch = window.fetch.bind(window);
   const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'content-type': 'application/json' } });
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+  const failureMessage = (cause: unknown) => {
+    console.warn('[ThoughtDAG] Native conversation request failed', cause);
+    return useI18n.getState().lang === 'zh'
+      ? '生成未能完成。请检查原生会话和模型设置，确认结果后重试。'
+      : 'Generation could not finish. Check the native conversation and model settings before retrying.';
+  };
   const history = async (sessionId: string): Promise<{ messages?: { role: string; text: string }[]; run?: { status: string } }> =>
     await readYomniHistory({ kind: 'conversation', sessionId }) as { messages?: { role: string; text: string }[]; run?: { status: string } };
   const questionOf = (body: unknown): string => {
@@ -55,7 +51,7 @@ if (frontend) {
   };
   const effortOf = (body: unknown): string | undefined => {
     const effort = (body as { reasoningEffort?: unknown })?.reasoningEffort;
-    return typeof effort === 'string' && ['none', 'minimal', 'low', 'medium', 'high', 'xhigh'].includes(effort) ? effort : undefined;
+    return typeof effort === 'string' && ['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'default'].includes(effort) ? effort : undefined;
   };
   const workspaceOf = (): { workspacePath?: string } => {
     const state = useProjects.getState();
@@ -139,14 +135,14 @@ if (frontend) {
           }
           throw new Error('Native run is still active; open its conversation to inspect the result');
         } catch (cause) {
-          if (!signal?.aborted) send({ error: cause instanceof Error ? cause.message : String(cause) });
+          if (!signal?.aborted) send({ error: failureMessage(cause) });
           controller.close();
         }
       },
     });
     return new Response(stream, { headers: { 'content-type': 'text/event-stream' } });
   };
-  window.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+  installYomniTransport(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const url = new URL(input instanceof Request ? input.url : String(input), location.href);
     if (url.origin !== location.origin || !url.pathname.startsWith('/api/')) return originalFetch(input, init);
     if (url.pathname === '/api/models') {
@@ -160,7 +156,7 @@ if (frontend) {
       const result = await answer(body, init?.signal ?? undefined);
       return json({ text: result.text, model: 'yomni/native' });
     } catch (cause) {
-      return json({ error: cause instanceof Error ? cause.message : String(cause) }, 500);
+      return json({ error: failureMessage(cause) }, 500);
     }
-  };
+  });
 }

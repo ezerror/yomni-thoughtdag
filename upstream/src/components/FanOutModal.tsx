@@ -1,3 +1,4 @@
+import { appearanceRoot } from '../lib/yomni-runtime';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { EyeIcon as Eye } from "@phosphor-icons/react/dist/csr/Eye";
@@ -189,5 +190,5 @@ export default function FanOutModal({
         </div>
       </div>
     </div>
-  ), document.body);
+  ), appearanceRoot());
 }

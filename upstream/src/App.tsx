@@ -1,3 +1,5 @@
+import { eventTarget } from './lib/yomni-runtime';
+import { appearanceRoot, inYomniHost, yomniFrontend } from './lib/yomni-runtime';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ReactFlow,
@@ -290,7 +292,7 @@ function Canvas() {
   const themePalette = useMemo(() => edgePalette(), [resolvedTheme]);
   // minimap colors resolve per theme too (its mask is the canvas surface)
   const minimapColors = useMemo(() => {
-    const cs = getComputedStyle(document.documentElement);
+    const cs = getComputedStyle(appearanceRoot());
     const surface = (cs.getPropertyValue('--color-surface').trim() || '#FAF9F7').replace('#', '');
     const [r, g, b] = [0, 2, 4].map((i) => parseInt(surface.slice(i, i + 2), 16));
     return {
@@ -476,7 +478,7 @@ function Canvas() {
         ghost = document.createElement('div');
         ghost.innerHTML = source.innerHTML;
         ghost.style.cssText = 'position:fixed;z-index:300;pointer-events:none;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--color-card);border:1px solid var(--color-accent);border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.18);opacity:.92;';
-        document.body.appendChild(ghost);
+        appearanceRoot().appendChild(ghost);
       }
       if (ghost) { ghost.style.left = `${ev.clientX - 18}px`; ghost.style.top = `${ev.clientY - 18}px`; }
     };
@@ -502,7 +504,7 @@ function Canvas() {
     // node with the image/document itself. Inputs keep their own paste.
     const onPaste = (e: ClipboardEvent) => {
       if (isViewerMode) return;
-      const target = e.target as HTMLElement | null;
+      const target = eventTarget(e) as HTMLElement | null;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
       const meta = useProjects.getState();
       const isPara = meta.projects.find((p) => p.id === meta.activeId)?.kind === 'paradigm';
@@ -677,21 +679,21 @@ function Canvas() {
   // Wire-drag must never start a text selection in the cards it crosses
   const onConnectStart = useCallback(() => {
     window.getSelection()?.removeAllRanges();
-    document.body.classList.add('tdag-connecting');
+    appearanceRoot().classList.add('tdag-connecting');
   }, []);
   // Dropping a wire on empty canvas = "continue from here": a fresh ask
   // node at the drop point, wired as a solid child (same as a follow-up).
   // Wiring to an EXISTING node stays a dashed reference — the distinction
   // is newborn vs. existing conversation, not which handle you aimed at.
   const onConnectEnd = useCallback<NonNullable<React.ComponentProps<typeof ReactFlow>['onConnectEnd']>>((event, connectionState) => {
-    document.body.classList.remove('tdag-connecting');
+    appearanceRoot().classList.remove('tdag-connecting');
     if (isParadigm) return;
     if (connectionState.isValid) return; // landed on a handle — onConnect owns it
     if (connectionState.fromHandle?.type !== 'source' || !connectionState.fromNode) return;
     const parentId = connectionState.fromNode.id;
     // Dropped on a card (not a handle): connect as a reference — aiming at
     // the card is enough. Materials and frames accept nothing (One Rule).
-    const overNode = (event.target as HTMLElement)?.closest?.('.react-flow__node');
+    const overNode = (eventTarget(event) as HTMLElement)?.closest?.('.react-flow__node');
     if (overNode) {
       const targetId = overNode.getAttribute('data-id');
       if (targetId && targetId !== parentId) {
@@ -748,6 +750,7 @@ function Canvas() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (inYomniHost && !appearanceRoot().contains(eventTarget(e) as Node)) return;
       // While the confirm dialog is open it owns the keyboard
       if (useUiStore.getState().confirmRequest) return;
       // Viewer: only Cmd+F search survives; every mutating shortcut is inert
@@ -763,7 +766,7 @@ function Canvas() {
         return;
       }
       {
-        const target = e.target as HTMLElement;
+        const target = eventTarget(e) as HTMLElement;
         const inField = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
         if (!inField && selectedNodeId && !isParadigm && !e.metaKey && !e.ctrlKey && !e.altKey) {
           const { nodes: ns, edges: es } = useStore.getState();
@@ -809,7 +812,7 @@ function Canvas() {
       }
       // Esc: step out — clear multi-selection first, then close the panel
       if (e.key === 'Escape') {
-        const target = e.target as HTMLElement;
+        const target = eventTarget(e) as HTMLElement;
         if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
         if (selectedNodeIds.length > 1) {
           setSelectedNodeIds([]);
@@ -820,7 +823,7 @@ function Canvas() {
       }
       // Delete/Backspace: multi-selected nodes (confirm) or selected edges
       if (e.key === 'Delete' || e.key === 'Backspace') {
-        const target = e.target as HTMLElement;
+        const target = eventTarget(e) as HTMLElement;
         if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
         if (selectedNodeIds.length > 1) {
           e.preventDefault();
@@ -888,7 +891,7 @@ function Canvas() {
   useEffect(() => {
     if (!frameNavOpen) return;
     const handler = (e: MouseEvent) => {
-      if (!frameNavRef.current?.contains(e.target as Node)) setFrameNavOpen(false);
+      if (!frameNavRef.current?.contains(eventTarget(e) as Node)) setFrameNavOpen(false);
     };
     window.addEventListener('mousedown', handler);
     return () => window.removeEventListener('mousedown', handler);
@@ -906,7 +909,7 @@ function Canvas() {
   useEffect(() => {
     if (!moreOpen) return;
     const handler = (e: MouseEvent) => {
-      if (!moreRef.current?.contains(e.target as Node)) setMoreOpen(false);
+      if (!moreRef.current?.contains(eventTarget(e) as Node)) setMoreOpen(false);
     };
     window.addEventListener('mousedown', handler);
     return () => window.removeEventListener('mousedown', handler);
@@ -1118,7 +1121,7 @@ function Canvas() {
         onDoubleClick={(e) => {
           // Double-click on empty canvas → drop an ask node right there
           // (same gesture family as double-click-on-node = open panel)
-          if ((e.target as HTMLElement).classList.contains('react-flow__pane') && !isParadigm) {
+          if ((eventTarget(e) as HTMLElement).classList.contains('react-flow__pane') && !isParadigm) {
             spawnAskNode(flowPosAt({ x: e.clientX, y: e.clientY }));
           }
         }}
@@ -1131,7 +1134,7 @@ function Canvas() {
         }}
         onDrop={(e) => {
           if (isViewerMode) return;
-          const el = e.target as HTMLElement;
+          const el = eventTarget(e) as HTMLElement;
           // Landing (empty canvas): dropping a document means "start from
           // this material" — file nodes + the reader, not attachments
           if (!hasNodes && !isParadigm && e.dataTransfer.files.length > 0) {
@@ -1494,7 +1497,8 @@ function Canvas() {
                 OpenRouter OAuth (free-tier models included, key minted in
                 this browser) — plus one quiet line for subscription owners.
                 Gone once any model exists. */}
-            {(!modelData || (modelData.models?.length ?? 0) === 0) && (
+            {inYomniHost && (!modelData || (modelData.models?.length ?? 0) === 0) && <button className="mt-3 text-sm" onClick={() => void yomniFrontend?.openSettings('host-models')}>{lang === 'zh' ? '在 Yomni 设置中连接模型' : 'Connect a model in Yomni settings'}</button>}
+            {!inYomniHost && (!modelData || (modelData.models?.length ?? 0) === 0) && (
               <div className="mt-3 bg-card/60 backdrop-blur border border-line rounded-xl px-5 py-3.5 text-center" data-quick-connect>
                 <div className="flex items-center justify-center gap-2 text-sm text-ink-muted font-medium">
                   <KeyRound size={15} strokeWidth={1.75} className="text-accent shrink-0" /> {t('landing.quickTitle')}

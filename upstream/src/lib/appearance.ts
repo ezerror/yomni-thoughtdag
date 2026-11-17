@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { yomniFrontend as yomni, appearanceRoot, inYomniHost } from './yomni-runtime';
 
 // Appearance: two independent axes, four quadrants.
 //   lighting — light / dark / system  → swaps the whole token set (data-theme)
@@ -13,11 +14,7 @@ const LS_LIGHTING = 'thoughtdag.lighting';
 const LS_PAPER = 'thoughtdag.paper';
 
 const media = typeof window !== 'undefined' ? window.matchMedia('(prefers-color-scheme: dark)') : null;
-const yomni = (window as Window & { yomniPlugin?: {
-  snapshot(): Promise<{ theme?: { mode: 'light' | 'dark' } }>;
-  onThemeChanged(listener: (theme: { mode: 'light' | 'dark' }) => void): () => void;
-  setTheme(mode: Lighting): Promise<void>;
-} }).yomniPlugin;
+
 
 function resolve(lighting: Lighting): 'light' | 'dark' {
   return lighting === 'system' ? (media?.matches ? 'dark' : 'light') : lighting;
@@ -25,8 +22,8 @@ function resolve(lighting: Lighting): 'light' | 'dark' {
 
 function apply(lighting: Lighting, paper: Paper): 'light' | 'dark' {
   const resolved = resolve(lighting);
-  document.documentElement.dataset.theme = resolved;
-  document.documentElement.dataset.paper = paper;
+  appearanceRoot().dataset.theme = resolved;
+  appearanceRoot().dataset.paper = paper;
   return resolved;
 }
 
@@ -48,7 +45,7 @@ export const useAppearance = create<AppearanceState>((set, get) => ({
   setLighting: (lighting) => {
     localStorage.setItem(LS_LIGHTING, lighting);
     set({ lighting, resolved: apply(lighting, get().paper) });
-    if (yomni) void yomni.setTheme(lighting);
+    if (yomni && !inYomniHost) void (yomni as any).setTheme(lighting);
   },
   setPaper: (paper) => {
     localStorage.setItem(LS_PAPER, paper);
@@ -66,7 +63,7 @@ export function initAppearance(): void {
       const state = useAppearance.getState();
       useAppearance.setState({ lighting: mode, resolved: apply(mode, state.paper) });
     };
-    yomni.onThemeChanged(theme => followHost(theme.mode));
+    yomni.onThemeChanged?.(theme => followHost(theme.mode));
     void yomni.snapshot().then(snapshot => {
       if (snapshot.theme) followHost(snapshot.theme.mode);
     });
@@ -84,7 +81,7 @@ export function initAppearance(): void {
     maps them through this palette so old graphs theme correctly without a
     data migration. */
 export function edgePalette(): { accent: string; warm: string; trace: string; watch: string } {
-  const cs = getComputedStyle(document.documentElement);
+  const cs = getComputedStyle(appearanceRoot());
   const read = (name: string, fallback: string) => cs.getPropertyValue(name).trim() || fallback;
   return {
     accent: read('--color-accent', '#6B5CE7'),

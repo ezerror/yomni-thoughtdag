@@ -1,3 +1,4 @@
+import { eventTarget } from '../../lib/yomni-runtime';
 import { useEffect, useRef, useState } from 'react';
 import { ArchiveIcon as Archive } from "@phosphor-icons/react/dist/csr/Archive";
 import { TrayArrowUpIcon as ArchiveRestore } from "@phosphor-icons/react/dist/csr/TrayArrowUp";
@@ -61,7 +62,7 @@ export default function HeaderActions({ nodeId, isLoading }: { nodeId: string; i
   useEffect(() => {
     if (!menuOpen) return;
     const handler = (e: MouseEvent) => {
-      if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
+      if (!menuRef.current?.contains(eventTarget(e) as Node)) setMenuOpen(false);
     };
     window.addEventListener('mousedown', handler);
     return () => window.removeEventListener('mousedown', handler);

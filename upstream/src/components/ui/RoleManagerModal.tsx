@@ -1,3 +1,4 @@
+import { appearanceRoot } from '../../lib/yomni-runtime';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { PlusIcon as Plus } from "@phosphor-icons/react/dist/csr/Plus";
@@ -112,5 +113,5 @@ export default function RoleManagerModal() {
         </div>
       </div>
     </div>
-  ), document.body);
+  ), appearanceRoot());
 }

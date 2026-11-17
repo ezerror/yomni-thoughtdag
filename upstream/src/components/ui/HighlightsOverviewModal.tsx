@@ -1,3 +1,4 @@
+import { appearanceRoot } from '../../lib/yomni-runtime';
 import { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { DownloadIcon as Download } from "@phosphor-icons/react/dist/csr/Download";
@@ -172,5 +173,5 @@ export default function HighlightsOverviewModal({ onLocate }: { onLocate: (nodeI
         </div>
       </div>
     </div>
-  ), document.body);
+  ), appearanceRoot());
 }

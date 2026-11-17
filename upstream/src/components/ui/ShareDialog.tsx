@@ -1,3 +1,4 @@
+import { appearanceRoot } from '../../lib/yomni-runtime';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CheckIcon as Check } from "@phosphor-icons/react/dist/csr/Check";
@@ -109,5 +110,5 @@ export default function ShareDialog() {
         </div>
       </div>
     </div>
-  ), document.body);
+  ), appearanceRoot());
 }

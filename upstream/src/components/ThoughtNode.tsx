@@ -1,3 +1,4 @@
+import { eventTarget } from '../lib/yomni-runtime';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { describeModel } from '../lib/use-models';
 import { toolFingerprint, turnComposition, footprint, conclusionOf } from '../lib/turn-insight';
@@ -332,7 +333,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
     title: `${t('node.exploredHere')} · ${m.question.slice(0, 80)}`,
   }));
   const handleResponseClick = (e: React.MouseEvent) => {
-    const m = (e.target as HTMLElement).closest?.('mark[data-explore-target]');
+    const m = (eventTarget(e) as HTMLElement).closest?.('mark[data-explore-target]');
     if (!m) return;
     if (window.getSelection()?.toString()) return; // a drag-select, not a click
     e.stopPropagation();
@@ -645,11 +646,11 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             const label = gen ?? data.model;
             if (!label) return null;
             const pinNote = gen && data.model && data.model !== gen
-              ? `\n${fmt(t('node.pinnedModel'), { m: data.model })}`
+              ? `\n${fmt(t('node.pinnedModel'), { m: describeModel(data.model) })}`
               : '';
             return (
-              <span className="text-2xs bg-wash text-ink-muted px-1.5 py-0.5 rounded-md font-mono truncate max-w-[130px]" title={`${label}${pinNote}`}>
-                {label.split('/').pop()}
+              <span className="text-2xs bg-wash text-ink-muted px-1.5 py-0.5 rounded-md font-mono truncate max-w-[130px]" title={`${describeModel(label)}${pinNote}`}>
+                {describeModel(label)}
               </span>
             );
           })()}

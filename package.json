@@ -1,6 +1,6 @@
 {
   "name": "@yomni/plugin-thoughtdag",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "license": "MIT",
   "thoughtdagUpstream": {
@@ -16,8 +16,8 @@
     "assets"
   ],
   "scripts": {
-    "typecheck": "tsc --noEmit && npm --prefix upstream exec -- tsc -b",
-    "build": "npm --prefix upstream ci --ignore-scripts --no-audit --no-fund && npm --prefix upstream run build -- --base=./ --outDir=../dist/ui --emptyOutDir && yomni-plugin-build .",
+    "typecheck": "tsc --noEmit && npm --prefix upstream run typecheck",
+    "build": "npm --prefix upstream ci --ignore-scripts --no-audit --no-fund && npm --prefix upstream run build:host && node scripts/build-host.mjs && yomni-plugin-build .",
     "pack": "yomni-plugin pack .",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "test:ui": "node tests/smoke.mjs"
@@ -28,6 +28,8 @@
     "@yomni/plugin-build": "file:vendor/yomni-devkit/yomni-plugin-build-0.1.0.tgz",
     "@yomni/plugin-sdk": "file:vendor/yomni-devkit/yomni-plugin-sdk-0.1.0.tgz",
     "@yomni/ui": "file:vendor/yomni-devkit/yomni-ui-0.1.0.tgz",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "typescript": "~5.9.3"
   },
   "description": "ThoughtDAG canvas for Yomni native conversations",

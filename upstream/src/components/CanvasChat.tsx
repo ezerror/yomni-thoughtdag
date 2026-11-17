@@ -1,3 +1,4 @@
+import { eventTarget } from '../lib/yomni-runtime';
 import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react';
 import { SpinnerGapIcon as Loader2 } from "@phosphor-icons/react/dist/csr/SpinnerGap";
 import { ChatCircleDotsIcon as MessageCircleQuestion } from "@phosphor-icons/react/dist/csr/ChatCircleDots";
@@ -118,7 +119,7 @@ export default function CanvasChat({ open, onClose, onLocate }: { open: boolean;
   // the answer is markdown with its citations as explore marks: one click handler locates the node a mark names,
   // and hovering a mark lights that node on the canvas with the beacon the "continue last thought" button uses
   // (a ripple that shows on cards, plaques and glyphs alike), so the reader sees where a claim rests
-  const markId = (e: ReactMouseEvent): string | null => (e.target as HTMLElement).closest?.('mark[data-explore-target]')?.getAttribute('data-explore-target') || null;
+  const markId = (e: ReactMouseEvent): string | null => (eventTarget(e) as HTMLElement).closest?.('mark[data-explore-target]')?.getAttribute('data-explore-target') || null;
   const onAnswerClick = (e: ReactMouseEvent) => { const id = markId(e); if (id) { e.stopPropagation(); onLocate(id); } };
   const beacon = (id: string | null) => useUiStore.getState().setBeaconNodeId(id);
   const onAnswerOver = (e: ReactMouseEvent) => beacon(markId(e));

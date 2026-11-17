@@ -8,6 +8,7 @@ const { activate } = require("../dist/index.cjs");
 test("ThoughtDAG uses Yomni's project-scoped history service", async () => {
   const calls = [];
   const host = {
+    storagePath: "unused-test-storage",
     signal: new AbortController().signal,
     services: { history: { call: async (method, input, scope) => {
       calls.push({ method, input, projectId: scope.projectId });
@@ -29,4 +30,15 @@ test("ThoughtDAG uses Yomni's project-scoped history service", async () => {
     { method: "snapshot", input: { sessionId: "session" }, projectId: "project" },
   ]);
   assert.equal((await ui.render({}, { ...context, projectId: "another" })).data.bridgeResult, undefined);
+});
+
+test("standalone canvas history does not require a project", async () => {
+  const calls = [];
+  delete require.cache[require.resolve("../dist/index.cjs")];
+  const module = await require("../dist/index.cjs").activate({ storagePath: "unused-test-storage", signal: new AbortController().signal, services: { history: { call: async (...args) => { calls.push(args); return []; } } } });
+  const ui = module.ui[0];
+  const context = { signal: new AbortController().signal };
+  await ui.act({ id: "bridge.history", value: JSON.stringify({ id: "independent", kind: "conversations" }) }, context);
+  assert.equal(calls[0][2].projectId, undefined);
+  assert.deepEqual((await ui.render({}, context)).data.bridgeResult, { id: "independent", value: { conversations: [], nextCursor: null } });
 });

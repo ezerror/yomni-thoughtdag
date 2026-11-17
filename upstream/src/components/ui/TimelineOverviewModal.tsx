@@ -1,3 +1,4 @@
+import { appearanceRoot } from '../../lib/yomni-runtime';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ClockCounterClockwiseIcon as History } from "@phosphor-icons/react/dist/csr/ClockCounterClockwise";
@@ -198,5 +199,5 @@ export default function TimelineOverviewModal({ onLocate }: { onLocate: (nodeId:
         </div>
       </div>
     </div>
-  ), document.body);
+  ), appearanceRoot());
 }

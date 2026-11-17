@@ -1,3 +1,5 @@
+import { eventTarget } from '../../lib/yomni-runtime';
+import { yomniFrontend } from '../../lib/yomni-runtime';
 import { useEffect, useRef, useState } from 'react';
 import { CheckIcon as Check } from "@phosphor-icons/react/dist/csr/Check";
 import { CaretDownIcon as ChevronDown } from "@phosphor-icons/react/dist/csr/CaretDown";
@@ -37,7 +39,7 @@ interface PickerProps {
 // GLOBAL selection; with value/onChange it edits a per-node override and
 // offers an "inherit" entry.
 export default function ModelPicker({ value, onChange, compact }: PickerProps) {
-  const yomni = (window as Window & { yomniPlugin?: { openSettings(page?: string): Promise<void> } }).yomniPlugin;
+  const yomni = yomniFrontend;
   const t = useT();
   const nodeMode = !!onChange;
   const selectedModel = useUiStore((s) => s.selectedModel);
@@ -66,7 +68,7 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+      if (!rootRef.current?.contains(eventTarget(e) as Node)) setOpen(false);
     };
     window.addEventListener('mousedown', onDown);
     return () => window.removeEventListener('mousedown', onDown);
@@ -388,7 +390,7 @@ function GlobalCapabilities() {
         value={anysearchDraft}
         onChange={(e) => setAnysearchDraft(e.target.value)}
         onBlur={() => void saveAnysearchKey()}
-        onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+        onKeyDown={(e) => { if (e.key === 'Enter') (eventTarget(e) as HTMLInputElement).blur(); }}
         onClick={(e) => e.stopPropagation()}
         placeholder={t('caps.anysearchKeyPlaceholder')}
         data-anysearch-key

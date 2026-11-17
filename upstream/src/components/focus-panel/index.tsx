@@ -1,3 +1,4 @@
+import { eventTarget } from '../../lib/yomni-runtime';
 import { useState } from 'react';
 import { XIcon as X } from "@phosphor-icons/react/dist/csr/X";
 import { useStore } from '../../store';
@@ -46,7 +47,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
 
   const onResizePointerDown = (e: React.PointerEvent) => {
     e.preventDefault();
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    (eventTarget(e) as HTMLElement).setPointerCapture(e.pointerId);
     setResizing(true);
   };
   const onResizePointerMove = (e: React.PointerEvent) => {
@@ -57,7 +58,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
   const onResizePointerUp = (e: React.PointerEvent) => {
     if (!resizing) return;
     setResizing(false);
-    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+    (eventTarget(e) as HTMLElement).releasePointerCapture(e.pointerId);
     localStorage.setItem(PANEL_WIDTH_KEY, String(useUiStore.getState().panelWidth));
   };
   const onResizeDoubleClick = () => {

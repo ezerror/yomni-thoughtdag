@@ -1,3 +1,5 @@
+import { eventTarget } from '../lib/yomni-runtime';
+import { yomniFrontend } from '../lib/yomni-runtime';
 import { useEffect, useRef, useState } from 'react';
 import { ArchiveIcon as Archive } from "@phosphor-icons/react/dist/csr/Archive";
 import { CaretDownIcon as ChevronDown } from "@phosphor-icons/react/dist/csr/CaretDown";
@@ -75,7 +77,7 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+      if (!rootRef.current?.contains(eventTarget(e) as Node)) setOpen(false);
     };
     window.addEventListener('mousedown', handler);
     return () => window.removeEventListener('mousedown', handler);
@@ -218,7 +220,7 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
             >
               <Upload size={15} strokeWidth={1.75} /> {t('switcher.importBackup')}
             </button>
-            {'yomniPlugin' in window && <button
+            {yomniFrontend && <button
               onClick={() => { setOpen(false); void import('../lib/yomni-sessions').then(m => m.yomniConversations()).then(convs => { setMountYomni(true); setChatImport(convs); }).catch(err => toast('error', String(err))); }}
               className="w-full text-left px-3 py-2 text-sm text-ink-muted hover:bg-wash transition-colors flex items-center gap-2"
             >

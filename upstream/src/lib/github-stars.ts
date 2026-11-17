@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { inYomniHost } from './yomni-runtime';
 
 // The repository's star count, for the ⋯ menu's GitHub entry: fetched from
 // GitHub's public API at most every six hours, remembered in this browser so
@@ -19,6 +20,7 @@ let inflight: Promise<number | null> | null = null;
 /** The star count, cached; null when unknown and unreachable. */
 export function githubStars(): Promise<number | null> {
   const c = read();
+  if (inYomniHost) return Promise.resolve(c?.stars ?? null);
   if (c && Date.now() - c.at < TTL_MS) return Promise.resolve(c.stars);
   inflight ??= fetch(API, { headers: { Accept: 'application/vnd.github+json' } })
     .then((r) => (r.ok ? r.json() : null))

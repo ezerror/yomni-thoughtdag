@@ -1,3 +1,4 @@
+import { yomniFetch as fetch } from './yomni-runtime';
 import { API_BASE } from './constants';
 import { isAgentModel, agentCallStream } from './agents/agent-runtime';
 import { toast, useUiStore } from './ui-store';

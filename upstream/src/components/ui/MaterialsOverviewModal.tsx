@@ -1,3 +1,4 @@
+import { appearanceRoot } from '../../lib/yomni-runtime';
 import { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { BookOpenIcon as BookOpen } from "@phosphor-icons/react/dist/csr/BookOpen";
@@ -156,5 +157,5 @@ export default function MaterialsOverviewModal({ onLocate }: { onLocate: (nodeId
         </div>
       </div>
     </div>
-  ), document.body);
+  ), appearanceRoot());
 }

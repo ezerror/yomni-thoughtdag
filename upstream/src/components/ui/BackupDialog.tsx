@@ -1,3 +1,4 @@
+import { appearanceRoot } from '../../lib/yomni-runtime';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { FolderSimpleIcon as FolderSync } from "@phosphor-icons/react/dist/csr/FolderSimple";
@@ -70,5 +71,5 @@ export default function BackupDialog() {
         )}
       </div>
     </div>
-  ), document.body);
+  ), appearanceRoot());
 }

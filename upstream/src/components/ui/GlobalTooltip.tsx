@@ -1,3 +1,5 @@
+import { eventTarget } from '../../lib/yomni-runtime';
+import { appearanceRoot } from '../../lib/yomni-runtime';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -39,8 +41,8 @@ export default function GlobalTooltip() {
     };
 
     const over = (e: MouseEvent) => {
-      const el = (e.target as Element | null)?.closest?.('[title], [data-tip-stash]') as HTMLElement | null;
-      if (!el || el === current) return;
+      const el = (eventTarget(e) as Element | null)?.closest?.('[title], [data-tip-stash]') as HTMLElement | null;
+      if (!el || !appearanceRoot().contains(el) || el === current) return;
       clear();
       const text = el.getAttribute('title') ?? el.dataset.tipStash ?? '';
       if (!text.trim()) return;
@@ -66,7 +68,8 @@ export default function GlobalTooltip() {
       if (!current) return;
       const to = e.relatedTarget;
       if (to instanceof Node && current.contains(to)) return;
-      if (e.target instanceof Node && (current === e.target || current.contains(e.target))) clear();
+      const target = eventTarget(e);
+      if (target instanceof Node && (current === target || current.contains(target))) clear();
     };
 
     // capture phase: the title is back BEFORE any click handler or
@@ -102,8 +105,10 @@ function TipBox({ tip }: { tip: Tip }) {
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
+    const bounds = appearanceRoot().getBoundingClientRect();
     const half = el.offsetWidth / 2;
-    el.style.left = `${Math.max(12 + half, Math.min(tip.x, window.innerWidth - 12 - half))}px`;
+    el.style.left = `${Math.max(12 + half, Math.min(tip.x - bounds.left, bounds.width - 12 - half))}px`;
+    el.style.top = `${(tip.above ? tip.top - 8 : tip.bottom + 8) - bounds.top}px`;
   }, [tip]);
   return createPortal(
     <div
@@ -117,6 +122,6 @@ function TipBox({ tip }: { tip: Tip }) {
     >
       {tip.text}
     </div>,
-    document.body,
+    appearanceRoot(),
   );
 }

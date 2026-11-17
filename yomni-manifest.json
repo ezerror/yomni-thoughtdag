@@ -18,12 +18,6 @@
   "extensions": [
     "yomni.ui.workbench"
   ],
-  "frontends": {
-    "workbench": {
-      "root": "dist/ui",
-      "entry": "index.html"
-    }
-  },
   "consumes": {
     "history": {
       "contract": "yomni.conversations.history",
@@ -53,5 +47,14 @@
         }
       ]
     }
+  },
+  "hostRenderers": {
+    "canvas": {
+      "root": "dist/ui",
+      "entry": "host.js"
+    }
+  },
+  "requiresHost": {
+    "yomni.ui.workbench.hostRenderer": 3
   }
 }

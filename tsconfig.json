@@ -8,9 +8,12 @@
     "skipLibCheck": true,
     "types": [
       "node"
-    ]
+    ],
+    "jsx": "react-jsx"
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "ui/**/*.tsx",
+    "ui/**/*.d.ts"
   ]
 }

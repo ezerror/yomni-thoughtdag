@@ -1,3 +1,5 @@
+import { eventTarget } from '../lib/yomni-runtime';
+import { appearanceRoot } from '../lib/yomni-runtime';
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { ArchiveIcon as Archive } from "@phosphor-icons/react/dist/csr/Archive";
@@ -31,7 +33,7 @@ export default function NodeContextMenu({ x, y, nodeId, onClose }: {
   const node = useStore((s) => s.nodes.find((n) => n.id === nodeId));
 
   useEffect(() => {
-    const down = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) onClose(); };
+    const down = (e: MouseEvent) => { if (!ref.current?.contains(eventTarget(e) as Node)) onClose(); };
     const key = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('mousedown', down);
     window.addEventListener('keydown', key);
@@ -52,8 +54,9 @@ export default function NodeContextMenu({ x, y, nodeId, onClose }: {
   // Keep the menu inside the viewport (it renders at the pointer)
   const MENU_W = 200;
   const MENU_H = 380;
-  const left = Math.min(x, window.innerWidth - MENU_W - 8);
-  const top = Math.min(y, window.innerHeight - MENU_H - 8);
+  const bounds = appearanceRoot().getBoundingClientRect();
+  const left = Math.max(0, Math.min(x - bounds.left, bounds.width - MENU_W - 8));
+  const top = Math.max(0, Math.min(y - bounds.top, bounds.height - MENU_H - 8));
 
   const run = (fn: () => void) => () => { onClose(); fn(); };
 
@@ -131,5 +134,5 @@ export default function NodeContextMenu({ x, y, nodeId, onClose }: {
         <Trash2 size={14} strokeWidth={1.75} className="shrink-0" /> {t('common.delete')}
       </button>
     </div>
-  ), document.body);
+  ), appearanceRoot());
 }

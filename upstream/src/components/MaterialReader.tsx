@@ -1,3 +1,4 @@
+import { eventTarget } from '../lib/yomni-runtime';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CaretDownIcon as ChevronDown } from "@phosphor-icons/react/dist/csr/CaretDown";
 import { CaretRightIcon as ChevronRight } from "@phosphor-icons/react/dist/csr/CaretRight";
@@ -121,7 +122,7 @@ function ReaderOverlay({ node, onLocate, dock }: { node: ThoughtNode; onLocate: 
   const [resizing, setResizing] = useState(false);
   const onResizePointerDown = (e: React.PointerEvent) => {
     e.preventDefault();
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    (eventTarget(e) as HTMLElement).setPointerCapture(e.pointerId);
     setResizing(true);
   };
   const onResizePointerMove = (e: React.PointerEvent) => {
@@ -131,7 +132,7 @@ function ReaderOverlay({ node, onLocate, dock }: { node: ThoughtNode; onLocate: 
   const onResizePointerUp = (e: React.PointerEvent) => {
     if (!resizing) return;
     setResizing(false);
-    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+    (eventTarget(e) as HTMLElement).releasePointerCapture(e.pointerId);
     localStorage.setItem('thoughtdag.readerWidth', String(useUiStore.getState().readerWidth));
   };
   const onResizeDoubleClick = () => {
@@ -143,7 +144,7 @@ function ReaderOverlay({ node, onLocate, dock }: { node: ThoughtNode; onLocate: 
   useEffect(() => {
     if (!pickerOpen) return;
     const onDown = (e: MouseEvent) => {
-      if (!(e.target as HTMLElement | null)?.closest?.('[data-reader-material-picker]')) setPickerOpen(false);
+      if (!(eventTarget(e) as HTMLElement | null)?.closest?.('[data-reader-material-picker]')) setPickerOpen(false);
     };
     document.addEventListener('mousedown', onDown);
     return () => document.removeEventListener('mousedown', onDown);
