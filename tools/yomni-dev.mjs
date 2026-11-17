@@ -5,7 +5,7 @@ const index = args.indexOf("--host");
 const environmentHost = process.env.npm_config_host;
 const specifiedHost = index >= 0 ? args[index + 1] : environmentHost === "true" ? args[0] : environmentHost;
 if ((index >= 0 || environmentHost === "true") && (!specifiedHost || specifiedHost.startsWith("--"))) throw new Error("--host requires a workspace path");
-const host = resolve(specifiedHost ?? process.env.YOMNI_HOST_WORKSPACE ?? process.env.MODERA_HOST_WORKSPACE ?? "../../yomni");
+const host = resolve(specifiedHost ?? process.env.YOMNI_HOST_WORKSPACE ?? "../../yomni");
 if (index >= 0) args.splice(index, 2);
 else if (environmentHost === "true") args.shift();
 const { startPluginDev } = await import(pathToFileURL(resolve(host, "tools/plugin-dev.mjs")));
