@@ -12,7 +12,8 @@
   "files": [
     "yomni-manifest.json",
     "dist",
-    "LICENSE"
+    "LICENSE",
+    "assets"
   ],
   "scripts": {
     "typecheck": "tsc --noEmit && npm --prefix upstream exec -- tsc -b",
